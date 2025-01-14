@@ -70,7 +70,7 @@ Conditions:
   HasIAMUserSSHAccess: !Equals [!Ref IAMUserSSHAccess, 'true']
   HasSpecificAmiId: !Not [!Equals [!Ref AmiId, '']]
   # Use Fn::Join because Fn::Length will evaluate to 1 with an empty string in a CommaDelimitedList
-  HasAllowedCidrIps: !Not [ !Equals [ Fn::Join: [ '', !Ref AllowedCidrIps ], '' ] ]
+  HasAllowedCidrIps: !Not [!Equals [Fn::Join: ['', !Ref AllowedCidrIps], '']]
 Resources:
   RecordSet:
     Condition: HasHostedZoneModule
@@ -102,17 +102,17 @@ Resources:
       VpcId:
         'Fn::ImportValue': !Sub '${VpcModule}-Id'
   'Fn::ForEach::SecurityGroupIngressRules':
-    - CIDR
-    - !Ref AllowedCidrIps
-    - 'IngressRule&{CIDR}':
-        Type: 'AWS::EC2::SecurityGroupIngress'
-        Condition: HasAllowedCidrIps
-        Properties:
-          CidrIp: !Ref CIDR
-          GroupId: !Ref SecurityGroup
-          IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
+  - CIDR
+  - !Ref AllowedCidrIps
+  - 'IngressRule&{CIDR}':
+      Type: 'AWS::EC2::SecurityGroupIngress'
+      Condition: HasAllowedCidrIps
+      Properties:
+        CidrIp: !Ref CIDR
+        GroupId: !Ref SecurityGroup
+        IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
   InstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
@@ -261,9 +261,9 @@ Resources:
                 ensureRunning: true
                 packages:
                   yum:
-                    - amazon-cloudwatch-agent
+                  - amazon-cloudwatch-agent
                 files:
-                  - '/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json'
+                - '/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json'
         config:
           files:
             '/etc/cfn/cfn-hup.conf':
@@ -388,4 +388,4 @@ Outputs:
     Export:
       Name: !Sub '${AWS::StackName}-PublicIpAddress'
   HasAllowedCidrIps:
-    Value: !If [ HasAllowedCidrIps, 'true', 'false']
+    Value: !If [HasAllowedCidrIps, 'true', 'false']
